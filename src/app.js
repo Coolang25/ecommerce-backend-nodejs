@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load environment variables from .env file
 const compression = require('compression');
 const express = require('express');
 const { default: helmet } = require('helmet');
