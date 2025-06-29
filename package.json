@@ -11,7 +11,8 @@
   "author": "QuatTT",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongoose": "^8.16.1"
   },
   "devDependencies": {
     "compression": "^1.8.0",

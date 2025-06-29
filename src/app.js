@@ -11,6 +11,9 @@ app.use(compression); // Compression middleware
 
 
 // init db
+require('./dbs/init.mongodb.js'); // MongoDB connection
+const { checkOverload } = require('./helpers/check.connect'); // Check overload connections
+checkOverload(); // Start checking for overload connections
 
 // init routes
 app.get('/', (req, res, next) => {
