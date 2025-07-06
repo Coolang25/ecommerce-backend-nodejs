@@ -2,7 +2,7 @@
 
 const shopModel = require("../models/shop.model");
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
+const crypto = require("node:crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
@@ -40,39 +40,39 @@ class AccessService {
 
             if (newShop) {
                 // create privateKey and publicKey for the shop
-                const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-                    modulusLength: 4096,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                });
+                // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+                //     modulusLength: 4096,
+                //     publicKeyEncoding: {
+                //         type: 'pkcs1',
+                //         format: 'pem',
+                //     },
+                //     privateKeyEncoding: {
+                //         type: 'pkcs1',
+                //         format: 'pem',
+                //     },
+                // });
+
+                const privateKey = crypto.randomBytes(64).toString('hex');
+                const publicKey = crypto.randomBytes(64).toString('hex');
 
                 console.log({ privateKey, publicKey });
 
-                const publicKeyString = await KeyTokenService.createKeyToken({
+                const keyStore = await KeyTokenService.createKeyToken({
                     userId: newShop._id,
                     publicKey,
+                    privateKey,
                 });
 
-                if (!publicKeyString) {
+                if (!keyStore) {
                     return {
                         code: 'xxx',
-                        message: 'Failed to create public key',
+                        message: 'Failed',
                         status: 'error',
                     }
                 }
 
-                const publicKeyObject = crypto.createPublicKey(publicKeyString);
-
-                console.log('Public Key Object:', publicKeyObject);
-
                 // Create the access token and refresh token
-                const tokens = await createTokenPair({ userId: newShop._id, email }, publicKeyString, privateKey);
+                const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
                 console.log('Tokens created:', tokens);
 
                 return {
@@ -90,6 +90,7 @@ class AccessService {
             };
 
         } catch (error) {
+            console.error('Error in signUp:', error);
             return {
                 code: 'xxx',
                 message: error.message,
