@@ -8,22 +8,18 @@ const app = express();
 // init middleware
 app.use(morgan('dev')); // Logging middleware: combinded, dev, common, short, tiny
 app.use(helmet()) // Security middleware
-app.use(compression); // Compression middleware
+app.use(compression()); // Compression middleware
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 
 // init db
 require('./dbs/init.mongodb.js'); // MongoDB connection
-const { checkOverload } = require('./helpers/check.connect'); // Check overload connections
-checkOverload(); // Start checking for overload connections
+// const { checkOverload } = require('./helpers/check.connect'); // Check overload connections
+// checkOverload(); // Start checking for overload connections
 
 // init routes
-app.get('/', (req, res, next) => {
-    const strCompress = 'Hello'
-    return res.status(200).json({
-        message: 'Welcome to WSV eCommerce API',
-        metadata: strCompress.repeat(1000),
-    });
-});
+app.use('/', require('./routes')); // Main route
 
 // handle errors
 
