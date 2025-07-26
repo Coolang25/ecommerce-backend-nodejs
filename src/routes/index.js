@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
+const { apiKey, permission } = require("../auth/checkAuth");
 const router = express.Router();
 
-router.use('/v1/api', require('./access')); // Access routes
-// router.get('', (req, res, next) => {
-//     return res.status(200).json({
-//         message: 'Welcome to WSV eCommerce API',
-//     });
-// });
+// check apiKey
+router.use(apiKey);
+router.use(permission("0000"));
+
+router.use("/v1/api", require("./access")); // Access routes
 
 module.exports = router;
