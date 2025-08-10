@@ -8,5 +8,5 @@ x-api-key: 182b14cf0a6c74bc253609291b53281b17ec2bf6f390242b6ec0812e9edb39a9d9bdb
 {
     "name": "John Doe",
     "password": "password123",
-    "email": "test1@gmail.com" 
+    "email": "test1@gmail.com"
 }

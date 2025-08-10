@@ -18,8 +18,8 @@ const apiKey = async (req, res, next) => {
 
     const objKey = await findById(key);
     if (!objKey) {
-      return res.status(403).json({
-        message: "Forbidden Error",
+      return res.status(400).json({
+        message: "Not found API key",
       });
     }
 
