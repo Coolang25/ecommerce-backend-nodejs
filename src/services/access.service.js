@@ -6,7 +6,8 @@ const crypto = require("node:crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
-const { BadRequestError } = require("../core/error.response");
+const { BadRequestError, AuthFailureError } = require("../core/error.response");
+const { findByEmail } = require("./shop.service");
 
 const RoleShop = {
   SHOP: "SHOP",
@@ -16,8 +17,47 @@ const RoleShop = {
 };
 
 class AccessService {
+  static login = async ({ email, password, refreshToken = null }) => {
+    console.log("call s");
+    const foundShop = await findByEmail({ email });
+    console.log("foundShop", foundShop);
+    if (!foundShop) {
+      throw new BadRequestError("Shop not found with this email");
+    }
+
+    const match = bcrypt.compare(password, foundShop.password);
+    if (!match) {
+      throw new AuthFailureError("Authentication error");
+    }
+
+    const privateKey = crypto.randomBytes(64).toString("hex");
+    const publicKey = crypto.randomBytes(64).toString("hex");
+
+    const { _id: userId } = foundShop;
+
+    const tokens = await createTokenPair(
+      { userId, email },
+      publicKey,
+      privateKey
+    );
+
+    await KeyTokenService.createKeyToken({
+      userId,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+    });
+
+    return {
+      shop: getInfoData({
+        fields: ["_id", "name", "email"],
+        objects: foundShop,
+      }),
+      tokens,
+    };
+  };
+
   static signUp = async ({ name, email, password }) => {
-    // try {
     const hodelShop = await shopModel.findOne({ email }).lean();
     if (hodelShop) {
       throw new BadRequestError("Shop already exists with this email");
@@ -35,39 +75,25 @@ class AccessService {
       const privateKey = crypto.randomBytes(64).toString("hex");
       const publicKey = crypto.randomBytes(64).toString("hex");
 
-      console.log({ privateKey, publicKey });
-
-      const keyStore = await KeyTokenService.createKeyToken({
-        userId: newShop._id,
-        publicKey,
-        privateKey,
-      });
-
-      if (!keyStore) {
-        return {
-          code: "xxx",
-          message: "Failed",
-          status: "error",
-        };
-      }
-
-      // Create the access token and refresh token
       const tokens = await createTokenPair(
         { userId: newShop._id, email },
         publicKey,
         privateKey
       );
-      console.log("Tokens created:", tokens);
+
+      await KeyTokenService.createKeyToken({
+        userId: newShop._id,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken,
+      });
 
       return {
-        code: 201,
-        metadata: {
-          shop: getInfoData({
-            fields: ["_id", "name", "email"],
-            objects: newShop,
-          }),
-          tokens,
-        },
+        shop: getInfoData({
+          fields: ["_id", "name", "email"],
+          objects: newShop,
+        }),
+        tokens,
       };
     }
 
@@ -75,15 +101,6 @@ class AccessService {
       code: 200,
       metadata: null,
     };
-
-    // } catch (error) {
-    //     console.error('Error in signUp:', error);
-    //     return {
-    //         code: 'xxx',
-    //         message: error.message,
-    //         status: 'error',
-    //     }
-    // }
   };
 }
 
