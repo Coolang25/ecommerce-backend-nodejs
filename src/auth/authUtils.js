@@ -41,7 +41,6 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 
 const authentication = asyncHandler(async (req, res, next) => {
   const userId = req.headers[HEADER.CLIENT_ID];
-  console.log("call");
   if (!userId) throw new AuthFailureError("Invalid request");
 
   const keyStore = await KeyTokenService.findByUserId(userId);
@@ -61,7 +60,12 @@ const authentication = asyncHandler(async (req, res, next) => {
   }
 });
 
+const verifyJWT = async (token, keySecret) => {
+  return await JWT.verify(token, keySecret);
+};
+
 module.exports = {
   createTokenPair,
   authentication,
+  verifyJWT,
 };
