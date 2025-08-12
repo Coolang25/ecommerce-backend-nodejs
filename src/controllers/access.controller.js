@@ -10,6 +10,14 @@ class AccessController {
     }).send(res);
   };
 
+  logout = async (req, res, next) => {
+    console.log("call 1");
+    new SuccessResponse({
+      message: "Logout successful",
+      metadata: await AccessService.logout(req.keyStore),
+    }).send(res);
+  };
+
   signUp = async (req, res, next) => {
     new CREATED({
       message: "Registration successful",
