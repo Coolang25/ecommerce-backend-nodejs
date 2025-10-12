@@ -101,6 +101,10 @@ const queryProduct = async ({ query, limit = 50, skip = 0 }) => {
     .exec();
 };
 
+const getProductById = async (product_id) => {
+  return await product.findOne({ _id: product_id }).lean();
+};
+
 module.exports = {
   findAllDraftsForShop,
   publishProductByShop,
@@ -110,4 +114,5 @@ module.exports = {
   findAllProducts,
   findProduct,
   updateProductById,
+  getProductById,
 };
