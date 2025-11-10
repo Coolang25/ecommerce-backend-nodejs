@@ -105,6 +105,21 @@ const getProductById = async (product_id) => {
   return await product.findOne({ _id: product_id }).lean();
 };
 
+const checkProductByServer = async (products) => {
+  return await Promise.all(
+    products.map(async (productItem) => {
+      const foundProduct = await getProductById(productItem.productId);
+      if (foundProduct) {
+        return {
+          price: foundProduct.product_price,
+          quantity: productItem.quantity,
+          productId: foundProduct._id,
+        };
+      }
+    })
+  );
+}
+
 module.exports = {
   findAllDraftsForShop,
   publishProductByShop,
@@ -115,4 +130,5 @@ module.exports = {
   findProduct,
   updateProductById,
   getProductById,
+  checkProductByServer
 };
