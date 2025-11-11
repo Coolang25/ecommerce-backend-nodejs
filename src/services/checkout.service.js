@@ -1,134 +1,134 @@
-"use strict";
+// "use strict";
 
-const { BadRequestError, NotFoundError } = require("../core/error.response");
-const { findCartById } = require("../models/repositories/cart.repo");
-const { checkProductByServer } = require("../models/repositories/product.repo");
-const DiscountService = require("./discount.service");
-const { acquireLock, releaseLock } = require("./redis.service");
-const order = require("../models/order.model");
+// const { BadRequestError, NotFoundError } = require("../core/error.response");
+// const { findCartById } = require("../models/repositories/cart.repo");
+// const { checkProductByServer } = require("../models/repositories/product.repo");
+// const DiscountService = require("./discount.service");
+// const { acquireLock, releaseLock } = require("./redis.service");
+// const order = require("../models/order");
 
-class CheckoutService {
-    static async checkoutReview({ cartId, userId, shop_order_ids = [] }) {
-        const foundCart = await findCartById(cartId);
-        if (!foundCart) throw new BadRequestError("Cart not found");
+// class CheckoutService {
+//     static async checkoutReview({ cartId, userId, shop_order_ids = [] }) {
+//         const foundCart = await findCartById(cartId);
+//         if (!foundCart) throw new BadRequestError("Cart not found");
 
-        const checkout_order = {
-            totalPrice: 0,
-            feeShip: 0,
-            totalDiscount: 0,
-            totalCheckout: 0,
-        };
+//         const checkout_order = {
+//             totalPrice: 0,
+//             feeShip: 0,
+//             totalDiscount: 0,
+//             totalCheckout: 0,
+//         };
 
-        const shop_order_ids_new = [];
+//         const shop_order_ids_new = [];
 
-        for (let i = 0; i < shop_order_ids.length; i++) {
-            const { shopId, shop_discounts = [], item_products = [] } = shop_order_ids[i];
-            const checkProductServer = await checkProductByServer(item_products);
-            if (!checkProductServer[0]) throw new BadRequestError("Some products are not valid");
+//         for (let i = 0; i < shop_order_ids.length; i++) {
+//             const { shopId, shop_discounts = [], item_products = [] } = shop_order_ids[i];
+//             const checkProductServer = await checkProductByServer(item_products);
+//             if (!checkProductServer[0]) throw new BadRequestError("Some products are not valid");
 
-            const checkoutPrice = checkProductServer.reduce((acc, product) => {
-                console.log("product", acc);
-                console.log("product", product);
-                return acc + (product.price * product.quantity);
-            }, 0);
+//             const checkoutPrice = checkProductServer.reduce((acc, product) => {
+//                 console.log("product", acc);
+//                 console.log("product", product);
+//                 return acc + (product.price * product.quantity);
+//             }, 0);
 
-            console.log("checkProductServer", checkoutPrice);
+//             console.log("checkProductServer", checkoutPrice);
 
-            checkout_order.totalPrice += checkoutPrice;
+//             checkout_order.totalPrice += checkoutPrice;
 
-            const itemCheckout = {
-                shopId,
-                shop_discounts,
-                priceRaw: checkoutPrice,
-                priceApplyDiscount: checkoutPrice,
-                item_products: checkProductServer,
-            }
+//             const itemCheckout = {
+//                 shopId,
+//                 shop_discounts,
+//                 priceRaw: checkoutPrice,
+//                 priceApplyDiscount: checkoutPrice,
+//                 item_products: checkProductServer,
+//             }
 
-            if (shop_discounts.length > 0) {
-                const { totalPrice = 0, discount = 0 } = await DiscountService.getDiscountAmount({
-                    codeId: shop_discounts[0].codeId,
-                    userId,
-                    shopId,
-                    products: checkProductServer,
-                })
+//             if (shop_discounts.length > 0) {
+//                 const { totalPrice = 0, discount = 0 } = await DiscountService.getDiscountAmount({
+//                     codeId: shop_discounts[0].codeId,
+//                     userId,
+//                     shopId,
+//                     products: checkProductServer,
+//                 })
 
-                checkout_order.totalDiscount += discount;
+//                 checkout_order.totalDiscount += discount;
 
-                if (discount > 0) {
-                    itemCheckout.priceApplyDiscount = checkoutPrice - discount;
-                }
-            }
+//                 if (discount > 0) {
+//                     itemCheckout.priceApplyDiscount = checkoutPrice - discount;
+//                 }
+//             }
 
-            checkout_order.totalCheckout += itemCheckout.priceApplyDiscount;
-            shop_order_ids_new.push(itemCheckout);
-        }
+//             checkout_order.totalCheckout += itemCheckout.priceApplyDiscount;
+//             shop_order_ids_new.push(itemCheckout);
+//         }
 
-        return {
-            shop_order_ids,
-            shop_order_ids_new,
-            checkout_order
-        }
-    }
+//         return {
+//             shop_order_ids,
+//             shop_order_ids_new,
+//             checkout_order
+//         }
+//     }
 
-    static async orderByUser({
-        shop_order_ids = [],
-        userId,
-        cartId,
-        user_address = {},
-        user_payment = {},
-    }) {
-        const { shop_order_ids_new, checkout_order } = await CheckoutService.checkoutReview({
-            cartId,
-            userId,
-            shop_order_ids,
-        });
+//     static async orderByUser({
+//         shop_order_ids = [],
+//         userId,
+//         cartId,
+//         user_address = {},
+//         user_payment = {},
+//     }) {
+//         const { shop_order_ids_new, checkout_order } = await CheckoutService.checkoutReview({
+//             cartId,
+//             userId,
+//             shop_order_ids,
+//         });
 
-        const products = shop_order_ids_new.flatMap(order => order.item_products);
-        const acquireProduct = [];
-        for (let i = 0; i < products.length; i++) {
-            const { productId, quantity } = products[i];
-            const keyLock = await acquireLock(productId, quantity, cartId);
-            acquireProduct.push(keyLock ? true : false);
-            if (keyLock) {
-                await releaseLock(keyLock);
-            }
-        }
+//         const products = shop_order_ids_new.flatMap(order => order.item_products);
+//         const acquireProduct = [];
+//         for (let i = 0; i < products.length; i++) {
+//             const { productId, quantity } = products[i];
+//             const keyLock = await acquireLock(productId, quantity, cartId);
+//             acquireProduct.push(keyLock ? true : false);
+//             if (keyLock) {
+//                 await releaseLock(keyLock);
+//             }
+//         }
 
-        if (acquireProduct.includes(false)) {
-            throw new BadRequestError("Your order failed due to insufficient product stock");
-        }
+//         if (acquireProduct.includes(false)) {
+//             throw new BadRequestError("Your order failed due to insufficient product stock");
+//         }
 
-        const newOrder = await order.create({
-            order_userId: userId,
-            order_checkout: checkout_order,
-            order_shipping: user_address,
-            order_payment: user_payment,
-            order_products: shop_order_ids_new,
-        });
+//         const newOrder = await order.create({
+//             order_userId: userId,
+//             order_checkout: checkout_order,
+//             order_shipping: user_address,
+//             order_payment: user_payment,
+//             order_products: shop_order_ids_new,
+//         });
 
-        // TODO: Clear cart after order success
-        if (newOrder) {
-            // await clearCartById(cartId);
-        }
+//         // TODO: Clear cart after order success
+//         if (newOrder) {
+//             // await clearCartById(cartId);
+//         }
 
-        return newOrder;
-    }
+//         return newOrder;
+//     }
 
-    static async getOrdersByUser() {
+//     static async getOrdersByUser() {
 
-    }
+//     }
 
-    static async getOneOrderByUser() {
+//     static async getOneOrderByUser() {
 
-    }
+//     }
 
-    static async cancelOrderByUser() {
+//     static async cancelOrderByUser() {
 
-    }
+//     }
 
-    static async updateOrderStatusByShop() {
+//     static async updateOrderStatusByShop() {
 
-    }
-}
+//     }
+// }
 
-module.exports = CheckoutService;
+// module.exports = CheckoutService;

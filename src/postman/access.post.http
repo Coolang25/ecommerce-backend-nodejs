@@ -3,7 +3,7 @@
 ### signup
 POST {{url_dev}}/shop/signup
 Content-Type: application/json
-x-api-key: c47450f111a2722fef4076e6e3addb42cef7cae133fa6be22a73e3baa1066287c60e3ddea9de9ca00a4422b49b87243e777d4e48e07e2c8eab2c44d82455218b
+x-api-key: 699d3034938972c22b0ee4070d1a7a76497bce0d657e83ebd42e859a7c73090ada74ac4ec04a7df16e75f8a4ac890a75e364449ffeacdc38590a70d9497fd2ba
 
 {
     "name": "John Doe",
