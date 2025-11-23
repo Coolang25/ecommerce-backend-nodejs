@@ -13,9 +13,9 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // test pubsub redis
-const productTest = require("./tests/product.test.js");
-require("./tests/inventory.test.js");
-productTest.purchaseProduct("product123", 2);
+// const productTest = require("./tests/product.test.js");
+// require("./tests/inventory.test.js");
+// productTest.purchaseProduct("product123", 2);
 
 // init db
 require("./dbs/init.mongodb.js"); // MongoDB connection
