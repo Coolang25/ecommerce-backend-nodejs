@@ -19,6 +19,7 @@ const {
 } = require("../models/repositories/product.repo");
 const { removeUndefinedObject, updateNestedObjectParser } = require("../utils");
 const { insertInventory } = require("../models/repositories/inventory.repo");
+const { pushNotiToSystem } = require("./notification.service");
 
 class ProductFactory {
   static productRegistry = {};
@@ -118,6 +119,20 @@ class Product {
         productId: newProduct._id,
         shopId: this.product_shop,
         stock: this.product_quantity,
+      });
+
+      pushNotiToSystem({
+        type: 'SHOP-001',
+        receiverId: 1,
+        senderId: this.product_shop,
+        options: {
+          productName: this.product_name,
+          shopName: this.product_shop
+        }
+      }).then(() => {
+        console.log("Push notification success");
+      }).catch((error) => {
+        console.error("Push notification failed:", error);
       });
     }
 
