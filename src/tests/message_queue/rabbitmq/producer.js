@@ -8,7 +8,7 @@ const runProducer = async () => {
         const channel = await connection.createChannel();
 
         const queueName = 'test-topic';
-        await channel.assertQueue(queueName, { durable: false });
+        await channel.assertQueue(queueName, { durable: true });
 
         channel.sendToQueue(queueName, Buffer.from(message));
         console.log(" [x] Sent '%s'", message);
