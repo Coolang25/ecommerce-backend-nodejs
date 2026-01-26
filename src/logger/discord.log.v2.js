@@ -17,11 +17,11 @@ class LoggerService {
         this.chanelId = CHANEL_ID_DISCORD;
         this.token = TOKEN_DISCORD;
 
-        this.client.on('ready', () => {
-            console.log(`Discord Logger connected as ${this.client.user.tag}`);
-        });
+        // this.client.on('ready', () => {
+        //     console.log(`Discord Logger connected as ${this.client.user.tag}`);
+        // });
 
-        this.client.login(this.token);
+        // this.client.login(this.token);
     }
 
     sendToFormatCode(logData) {
