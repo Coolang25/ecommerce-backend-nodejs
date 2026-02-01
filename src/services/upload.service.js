@@ -1,6 +1,45 @@
 'use strict';
 
 const cloudinary = require("../configs/cloudinary.config");
+const crypto = require("crypto");
+const { s3, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("../configs/s3.config");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
+const randomImageName = () => crypto.randomBytes(16).toString('hex');
+
+const uploadImageFromLocalS3 = async ({
+    file
+}) => {
+    try {
+
+
+        const imageName = randomImageName();
+        const command = new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: imageName,
+            Body: file.buffer,
+            ContentType: 'image/jpeg',
+        });
+
+        const result = await s3.send(command);
+
+        console.log('Upload successful:', result);
+
+        const signedUrl = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: imageName,
+        });
+
+        const url = await getSignedUrl(s3, signedUrl, { expiresIn: 3600 });
+
+        console.log('url:', url);
+
+        return url;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+    }
+}
+
 
 const uploadImageFromUrl = async () => {
     try {
@@ -55,5 +94,6 @@ const uploadImageFromLocal = async ({
 
 module.exports = {
     uploadImageFromUrl,
-    uploadImageFromLocal
+    uploadImageFromLocal,
+    uploadImageFromLocalS3
 };
