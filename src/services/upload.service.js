@@ -3,7 +3,7 @@
 const cloudinary = require("../configs/cloudinary.config");
 const crypto = require("crypto");
 const { s3, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("../configs/s3.config");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const urlImagePublic = "https://d375rebufmcauw.cloudfront.net";
 
 const randomImageName = () => crypto.randomBytes(16).toString('hex');
@@ -26,17 +26,17 @@ const uploadImageFromLocalS3 = async ({
 
         console.log('Upload successful:', result);
 
-        // const signedUrl = new GetObjectCommand({
-        //     Bucket: process.env.AWS_BUCKET_NAME,
-        //     Key: imageName,
-        // });
+        const url = getSignedUrl({
+            url: `${urlImagePublic}/${imageName}`,
+            keyPairId: process.env.AWS_CLOUDFRONT_KEY_PAIR_ID,
+            dateLessThan: new Date(Date.now() + 60 * 1000),
+            privateKey: process.env.AWS_CLOUDFRONT_PRIVATE_KEY,
+        });
 
-        // const url = await getSignedUrl(s3, signedUrl, { expiresIn: 3600 });
-
-        // console.log('url:', url);
+        console.log('url:', url);
 
         return {
-            url: `${urlImagePublic}/${imageName}`,
+            url,
             result
         };
     } catch (error) {
