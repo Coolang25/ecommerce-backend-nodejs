@@ -4,6 +4,7 @@ const cloudinary = require("../configs/cloudinary.config");
 const crypto = require("crypto");
 const { s3, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("../configs/s3.config");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const urlImagePublic = "https://d375rebufmcauw.cloudfront.net";
 
 const randomImageName = () => crypto.randomBytes(16).toString('hex');
 
@@ -25,16 +26,19 @@ const uploadImageFromLocalS3 = async ({
 
         console.log('Upload successful:', result);
 
-        const signedUrl = new GetObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: imageName,
-        });
+        // const signedUrl = new GetObjectCommand({
+        //     Bucket: process.env.AWS_BUCKET_NAME,
+        //     Key: imageName,
+        // });
 
-        const url = await getSignedUrl(s3, signedUrl, { expiresIn: 3600 });
+        // const url = await getSignedUrl(s3, signedUrl, { expiresIn: 3600 });
 
-        console.log('url:', url);
+        // console.log('url:', url);
 
-        return url;
+        return {
+            url: `${urlImagePublic}/${imageName}`,
+            result
+        };
     } catch (error) {
         console.error('Error uploading image:', error);
     }
