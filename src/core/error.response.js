@@ -12,12 +12,15 @@ const ReasonStatusCode = {
   CONFLICT: "Conflict error",
 };
 
+const logger = require("../logger/winston.log");
 const { StatusCodes, ReasonPhrases } = require("../utils/httpStatusCode");
 
 class ErrorResponse extends Error {
   constructor(message, status) {
     super(message);
     this.status = status;
+
+    logger.error(`Error: ${this.message}, Status Code: ${this.status}`);
   }
 }
 

@@ -30,7 +30,8 @@
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
     "redis": "^5.9.0",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "compression": "^1.8.0",
