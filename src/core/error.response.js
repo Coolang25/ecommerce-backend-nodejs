@@ -12,7 +12,8 @@ const ReasonStatusCode = {
   CONFLICT: "Conflict error",
 };
 
-const logger = require("../logger/winston.log");
+//const logger = require("../logger/winston.log");
+const myLogger = require("../logger/mylogger.log");
 const { StatusCodes, ReasonPhrases } = require("../utils/httpStatusCode");
 
 class ErrorResponse extends Error {
@@ -20,7 +21,7 @@ class ErrorResponse extends Error {
     super(message);
     this.status = status;
 
-    logger.error(`Error: ${this.message}, Status Code: ${this.status}`);
+    myLogger.error(this.message, ['/api/v1/login', 'vvsssss', { error: 'Bad request error' }]);
   }
 }
 
