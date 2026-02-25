@@ -21,7 +21,7 @@ class ErrorResponse extends Error {
     super(message);
     this.status = status;
 
-    myLogger.error(this.message, ['/api/v1/login', 'vvsssss', { error: 'Bad request error' }]);
+    //myLogger.error(this.message, ['/api/v1/login', 'vvsssss', { error: 'Bad request error' }]);
   }
 }
 

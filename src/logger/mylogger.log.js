@@ -63,7 +63,7 @@ class MyLogger {
         return { context, requestId, metadata };
     }
 
-    log(message, params) {
+    info(message, params) {
         const paramLog = this.commonParams(params);
         const logObject = Object.assign({ message }, paramLog);
         this.logger.info(logObject);
