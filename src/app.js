@@ -33,6 +33,8 @@ app.use((req, res, next) => {
 
 // init db
 require("./dbs/init.mongodb.js"); // MongoDB connection
+const { initRedis } = require("./dbs/init.redis.js"); // Redis connection
+initRedis();
 // const { checkOverload } = require('./helpers/check.connect'); // Check overload connections
 // checkOverload(); // Start checking for overload connections
 
@@ -59,7 +61,7 @@ app.use((error, req, res, next) => {
   return res.status(status).json({
     status: "error",
     code: status,
-    stack: error.stack,
+    //stack: error.stack,
     message: error.message || "Internal Server Error",
   });
 });
