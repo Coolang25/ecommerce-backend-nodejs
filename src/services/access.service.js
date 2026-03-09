@@ -12,7 +12,6 @@ const {
   ForbiddenError,
 } = require("../core/error.response");
 const { findByEmail } = require("./shop.service");
-const { add } = require("lodash");
 
 const RoleShop = {
   SHOP: "SHOP",

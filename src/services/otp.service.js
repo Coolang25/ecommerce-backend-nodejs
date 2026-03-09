@@ -18,6 +18,23 @@ const newOtp = async ({ email }) => {
     return newToken;
 }
 
+const checkEmailToken = async ({
+    token
+}) => {
+    const hasToken = await OTP.findOne({
+        otp_token: token
+    })
+
+    if (!hasToken) throw new Error('Token not found');
+
+    OTP.deleteMany({
+        otp_token: token
+    }).then()
+
+    return token;
+}
+
 module.exports = {
-    newOtp
+    newOtp,
+    checkEmailToken
 }
