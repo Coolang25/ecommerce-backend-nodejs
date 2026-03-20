@@ -10,12 +10,15 @@ router.get(
   "/search/:keySearch",
   asyncHandler(productController.getListSearchProduct)
 );
+router.get("/sku/select_variation", asyncHandler(productController.fineOneSku));
+router.get("/spu/get_spu_info", asyncHandler(productController.fineOneSpu));
 router.get("", asyncHandler(productController.findAllProducts));
 router.get("/:product_id", asyncHandler(productController.findProduct));
 
 router.use(authentication);
 
 router.post("", asyncHandler(productController.createProduct));
+router.post("/spu/new", asyncHandler(productController.createSpu));
 router.patch("/:productId", asyncHandler(productController.updateProduct));
 router.post(
   "/publish/:id",
