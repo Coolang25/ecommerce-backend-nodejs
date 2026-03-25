@@ -4,13 +4,14 @@ const express = require("express");
 const productController = require("../../controllers/product.controller");
 const { asyncHandler } = require("../../helpers/asyncHandler");
 const { authentication } = require("../../auth/authUtils");
+const { readCache } = require("../../middlewares/cache.middleware");
 const router = express.Router();
 
 router.get(
   "/search/:keySearch",
   asyncHandler(productController.getListSearchProduct)
 );
-router.get("/sku/select_variation", asyncHandler(productController.fineOneSku));
+router.get("/sku/select_variation", readCache, asyncHandler(productController.fineOneSku));
 router.get("/spu/get_spu_info", asyncHandler(productController.fineOneSpu));
 router.get("", asyncHandler(productController.findAllProducts));
 router.get("/:product_id", asyncHandler(productController.findProduct));

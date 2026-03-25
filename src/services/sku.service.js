@@ -3,6 +3,8 @@
 const _ = require('lodash')
 const SKU_MODEL = require("../models/sku.model")
 const { randomProductId } = require("../utils")
+const { CACHE_PRODUCT } = require('../configs/constant')
+const { getCacheIO, setCacheIO, setCacheIOExpiration } = require('../models/repositories/cache.repo')
 
 const newSku = async ({
     spu_id,
@@ -28,16 +30,26 @@ const oneSku = async ({
     product_id
 }) => {
     try {
-        // read cache
-        const sku = await SKU_MODEL.findOne({
+        if (sku_id < 0) return null;
+        if (product_id < 0) return null;
+
+        const skuKeyCache = `${CACHE_PRODUCT.SKU}${sku_id}`;
+
+        const skuCache = await SKU_MODEL.findOne({
             sku_id, product_id
         }).lean()
 
-        if (sku) {
-            // set cached
-        }
+        const valueCache = skuCache ? skuCache : null;
+        setCacheIOExpiration({
+            key: skuKeyCache,
+            value: JSON.stringify(valueCache),
+            expirationInSeconds: 30
+        }).then()
 
-        return _.omit(sku, ['__v', 'updatedAt', 'createdAt', 'isDeleted']);
+        return {
+            skuCache,
+            toLoad: 'dbs'
+        }
     } catch (error) {
         console.error(error)
     }
